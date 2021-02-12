@@ -11,17 +11,10 @@ export const fromPassphrase = (passphrase: string, networkVersion?: number): str
 export const fromPublicKey = (publicKey: string, networkVersion?: number): string => {
   if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
     throw new Error(`Incorrect public key format: ${publicKey}`);
-}
-
-  if (!networkVersion) {
-    networkVersion = mainNet.pubKeyHash
   }
 
   const buffer = ripemd160(Buffer.from(publicKey, 'hex'))
-  const payload = Buffer.alloc(21)
-
-  payload.writeUInt8(networkVersion, 0)
-  buffer.copy(payload, 1)
+  const payload = setNetworkByte(buffer, networkVersion)
 
   return fromBuffer(payload)
 }
@@ -64,4 +57,16 @@ export const validate = (address: string, networkVersion?: number): boolean => {
   } catch (err) {
     return false
   }
+}
+
+const setNetworkByte = (buffer: Buffer, networkVersion?: number): Buffer => {
+  if (!networkVersion) {
+    networkVersion = mainNet.pubKeyHash
+  }
+
+  const result = Buffer.alloc(21)
+  result.writeUInt8(networkVersion, 0)
+  buffer.copy(result, 1)
+
+  return result
 }

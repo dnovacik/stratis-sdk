@@ -1,4 +1,4 @@
-import { Hash160, Hash256, RIPEMD160, SHA1, SHA256 } from 'bcrypto'
+import { Hash160, Hash256, RIPEMD160, SHA1, SHA256, SHA512 } from 'bcrypto'
 
 export const ripemd160 = (buffer: Buffer | string): Buffer => {
   return RIPEMD160.digest(bufferize(buffer))
@@ -14,14 +14,34 @@ export const sha256 = (buffer: Buffer | string | Array<Buffer>): Buffer => {
 
     sha256.init()
 
-    buffer.forEach((e: Buffer) => {
-      sha256 = sha256.update(e)
-    })
+    for (const element of buffer) {
+      sha256 = sha256.update(element)
+    }
 
     return sha256.final()
   }
 
   return SHA256.digest(bufferize(buffer))
+}
+
+export const sha512 = (buffer: Buffer | string | Array<Buffer>): Buffer => {
+  if (Array.isArray(buffer)) {
+    let sha512 = SHA512.ctx
+
+    sha512.init()
+
+    for (const element of buffer) {
+      sha512 = sha512.update(element)
+    }
+
+    return sha512.final()
+  }
+
+  return SHA256.digest(bufferize(buffer))
+}
+
+export const hmacSHA512 = (key: Buffer, seed: Buffer): Buffer => {
+  return SHA512.mac(seed, key)
 }
 
 export const hash160 = (buffer: Buffer | string): Buffer => {

@@ -1,16 +1,16 @@
 import { mainNet } from './../network'
 import { ripemd160 } from './../crypto/hash-algo'
 import { base58 } from './../crypto/base58'
-import * as PublicKey from './pubkey'
 import { INetwork } from '../models'
+import * as keys from './keys'
 
-export const fromPassphrase = (passphrase: string, networkVersion?: number): string => {
-  return ''
+export const fromMnemonic = (mnemonic: string, passphrase: string, networkVersion?: number): string => {
+  return fromPublicKey(keys.fromMnemonic(mnemonic, passphrase).publicKey, networkVersion)
 }
 
 export const fromPublicKey = (publicKey: string, networkVersion?: number): string => {
   if (!/^[0-9A-Fa-f]{66}$/.test(publicKey)) {
-    throw new Error(`Incorrect public key format: ${publicKey}`);
+    throw new Error(`Incorrect public key format: ${publicKey}`)
   }
 
   const buffer = ripemd160(Buffer.from(publicKey, 'hex'))
@@ -20,7 +20,7 @@ export const fromPublicKey = (publicKey: string, networkVersion?: number): strin
 }
 
 export const fromWIF = (wif: string, network?: INetwork): string => {
-  return fromPublicKey(PublicKey.fromWiF(wif, network))
+  return fromPublicKey(keys.fromWIF(wif, network).publicKey)
 }
 
 export const fromPrivateKey = (privateKey: string, networkVersion?: number): string => {
